@@ -1,7 +1,7 @@
 
-# Para que serve
+## Para que serve
 
-Já reparou q sempre a primeira legenda de fala da pessoa instrutora se estende durante a vinheta de abertura da Alura Start? Essa automação Python serve para corrigir a sincronia das legendas automáticas, adicionando um bloco descritivo de música no começo do arquivo VTT.
+Já reparou que a primeira legenda de fala da pessoa instrutora sempre se estende durante a vinheta de abertura da Alura Start? Essa automação Python serve para corrigir a sincronia das legendas automáticas, adicionando um bloco descritivo de música no começo do arquivo VTT.
 
 ![Captura de tela de antes e depois da legenda sincronizada.](https://github.com/user-attachments/assets/3f8761be-0920-4822-804d-556ad51ad6b7)
 
