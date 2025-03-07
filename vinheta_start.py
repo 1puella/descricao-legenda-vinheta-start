@@ -5,6 +5,13 @@ from tkinter import Tk, filedialog, messagebox
 # duração HH:MM:SS.Mseg
 duracao_vinheta_start = "00:00:04.000"
 
+def extrair_blocos_legenda(texto_legenda):
+    # Extrai os blocos de legendas do texto
+    return re.findall(
+        r"(\d{2}:\d{2}:\d{2}\.\d{3})\s*-->\s*(\d{2}:\d{2}:\d{2}\.\d{3})\n(.+?(?:\n.+?)?)\n*(?=\d{2}:\d{2}:\d{2}\.\d{3}|$)",
+        texto_legenda, re.DOTALL
+    )
+
 def adicionar_descricao_vinheta_start(texto_legenda):
     # Remover caracteres invisíveis do BOM antes da verificação
     texto_legenda_limpo = texto_legenda.lstrip('\ufeff\n\r\t ')
@@ -17,11 +24,7 @@ def adicionar_descricao_vinheta_start(texto_legenda):
     return texto_legenda
 
 def definir_inicio_e_deslocar_o_resto(texto_legenda):
-    # Encontrar todos os blocos de legenda
-    padrao_blocos = re.findall(
-        r"(\d{2}:\d{2}:\d{2}\.\d{3})\s*-->\s*(\d{2}:\d{2}:\d{2}\.\d{3})\n(.+?(?:\n.+?)?)\n*(?=\d{2}:\d{2}:\d{2}\.\d{3}|$)",
-        texto_legenda, re.DOTALL
-    )
+    padrao_blocos = extrair_blocos_legenda(texto_legenda)
 
     # Modificar o tempo inicial do segundo bloco e unir com o terceiro
     if len(padrao_blocos) >= 3:
@@ -42,17 +45,22 @@ def definir_inicio_e_deslocar_o_resto(texto_legenda):
 
 # processar apenas os arquivos das aulas, sem os DROPS
 def processar_arquivos_legenda(pasta):
+
     for arquivo in os.listdir(pasta):
         if arquivo.endswith('.vtt') and not ("DROP" in arquivo or "O_que_aprendemos" in arquivo):
             caminho_arquivo = os.path.join(pasta, arquivo)
             with open(caminho_arquivo, 'r', encoding='utf-8') as file:
                 texto_legenda = file.read()
+            
+            padrao_blocos = extrair_blocos_legenda(texto_legenda)
 
-            texto_ajustado = adicionar_descricao_vinheta_start(texto_legenda)
-            texto_ajustado = definir_inicio_e_deslocar_o_resto(texto_ajustado)
+            # não ajustar se já tiver vinheta start
+            if padrao_blocos[0][2].strip() != "[♪]":
+                texto_legenda = adicionar_descricao_vinheta_start(texto_legenda)
+                texto_legenda = definir_inicio_e_deslocar_o_resto(texto_legenda)
 
             with open(caminho_arquivo, 'w', encoding='utf-8') as file:
-                file.write(texto_ajustado)
+                file.write(texto_legenda)
 
     messagebox.showinfo("Concluído", f"Todos os arquivos VTT da pasta {pasta} foram processados.")
 
